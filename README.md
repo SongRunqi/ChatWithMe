@@ -8,7 +8,8 @@ This is a laboratory equipment management system + chat system developed in 2020
 
 ![chat-windows](https://github.com/user-attachments/assets/43a9271e-d44c-4dd7-bcde-2f64a8656ccd)
 
-![chat-windows](https://github.com/user-attachments/assets/ff0f5f7e-782f-4498-b3a6-e8b583fdc444)
+<img width="699" alt="image" src="https://github.com/user-attachments/assets/a3036916-c477-4876-b79f-cefe5bca6771">
+
 
 
 # install

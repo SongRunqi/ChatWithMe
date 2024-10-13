@@ -1,4 +1,4 @@
-package table;
+package top.yitianyuye.chatWithMe.table;
 import java.sql.*;
 import javax.swing.*;
 import java.text.SimpleDateFormat;

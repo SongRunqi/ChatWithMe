@@ -1,8 +1,7 @@
-package table;
+package top.yitianyuye.chatWithMe.table;
 
 import java.net.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class IPAddressValidator {
 

@@ -1,5 +1,5 @@
-package log;
-import table.Table;
+package top.yitianyuye.chatWithMe.log;
+import top.yitianyuye.chatWithMe.table.Table;
 
 import java.awt.*;
 import javax.swing.*;
@@ -23,7 +23,7 @@ public class Chat extends JPanel implements ActionListener,MouseListener,Runnabl
     public JTextArea chatArea[];
     public JTextArea willSend[];
     public JButton send = new JButton("发送");
-    private String imageName[]={"headImage.jpg","01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg","08.jpg","09.jpg"};
+    private String imageName[]={"/headImage.jpg","/01.jpg","/02.jpg","/03.jpg","/04.jpg","/05.jpg","/06.jpg","/07.jpg","/08.jpg","/09.jpg"};
     public JPanel chatp;//本面板
     public JPanel center=new JPanel();
     private boolean isclient=true;//如果是第一次发送信息，那么自己作为客户端，另一方作为服务端

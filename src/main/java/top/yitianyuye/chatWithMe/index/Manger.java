@@ -1,7 +1,7 @@
-package index;
-import exception.NonactivatedException;
-import log.Chat;
-import table.Table;
+package top.yitianyuye.chatWithMe.index;
+import top.yitianyuye.chatWithMe.exception.NonactivatedException;
+import top.yitianyuye.chatWithMe.log.Chat;
+import top.yitianyuye.chatWithMe.table.Table;
 
 import java.awt.*;
 import java.awt.event.*;

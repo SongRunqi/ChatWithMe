@@ -1,11 +1,11 @@
-package log;
+package top.yitianyuye.chatWithMe.log;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import connect.*;
-import exception.*;
-import index.*;
-import table.Table;
+import top.yitianyuye.chatWithMe.connect.*;
+import top.yitianyuye.chatWithMe.exception.*;
+import top.yitianyuye.chatWithMe.index.*;
+import top.yitianyuye.chatWithMe.table.Table;
 import java.io.*;
 import java.sql.*;
 import java.net.*;
@@ -38,7 +38,7 @@ public class Login extends JFrame implements ActionListener,Runnable{
             e.printStackTrace();
         }
         //生成图片
-        ImageIcon imageIcon=new ImageIcon(getClass().getResource("title.jpg"));
+        ImageIcon imageIcon=new ImageIcon(getClass().getResource("/title.jpg"));
         Image image = imageIcon.getImage(); // transform it
         Image newimg = image.getScaledInstance(150, 107,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
         imageIcon = new ImageIcon(newimg);  // transform it back

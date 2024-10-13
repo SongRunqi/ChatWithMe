@@ -1,5 +1,4 @@
-package index;
-import javax.swing.*;
+package top.yitianyuye.chatWithMe.index;
 import java.sql.Connection;
 
 public class Department extends Module{

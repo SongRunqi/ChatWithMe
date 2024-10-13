@@ -1,4 +1,4 @@
-package exception;
+package top.yitianyuye.chatWithMe.exception;
 import javax.swing.*;
 
 public class GetConnectionException extends Exception{

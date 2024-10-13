@@ -1,5 +1,5 @@
-package index;
-import table.Table;
+package top.yitianyuye.chatWithMe.index;
+import top.yitianyuye.chatWithMe.table.Table;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -230,7 +230,7 @@ public class Module extends JPanel implements ActionListener{
             int n = table.getSelectedRow();
             table.validate();
             table.updateUI();//更新
-//            System.out.println(table.getRowCount());
+//            System.out.println(top.yitianyuye.chatWithMe.table.getRowCount());
         }else if(e.getActionCommand().equals("删除")){
             if(table.getSelectedRow()==-1){
                 JOptionPane.showMessageDialog(null,"请选择...");

@@ -1,4 +1,4 @@
-package index;
+package top.yitianyuye.chatWithMe.index;
 
 import java.sql.Connection;
 

@@ -1,4 +1,4 @@
-package log;
+package top.yitianyuye.chatWithMe.log;
 import java.io.*;
 import java.net.*;
 import java.awt.*;

@@ -22,8 +22,9 @@ The design ensures seamless peer-to-peer communication, where each participant c
 3. run the generated jar file.
 
 # useage
-1. Maintain your laboratory equipments
-2. Chat between managers.
+1. Efficiently manage and track laboratory equipmentThis emphasizes both maintaining and monitoring the status of laboratory devices.
+2. Facilitate communication between managers through a real-time chat system
+This clarifies that the chat system enables seamless, real-time communication among managers.
 
 # Features to add
 1. add your friend with name or uid

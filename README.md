@@ -1,5 +1,9 @@
 # ChatWithMe
-This is a laboratory equipment management system with a chat system developed in 2020 at the university. It can maintain device information and provide chat conveniently. This app is build with Java swing and threads tecniques, it use socket to create a connection between client and server. Indeed, every client is a server. Client means you are a sender who is send message to the other, which as a server.
+This is a Laboratory Equipment Management System with an integrated chat feature. The system is designed to efficiently manage and maintain device information while providing a convenient real-time communication platform for users.
+
+The application is built using Java Swing for the graphical user interface (GUI) and utilizes multithreading to handle simultaneous operations. It employs socket programming to establish connections between clients and servers for the chat functionality. Interestingly, in this system, each client also acts as a server. This means that when a user (client) sends a message, they are simultaneously functioning as a server to receive messages from others.
+
+The design ensures seamless peer-to-peer communication, where each participant can send and receive messages in real-time, allowing for effective management and collaboration within the laboratory environment.
 
 # Preview
 

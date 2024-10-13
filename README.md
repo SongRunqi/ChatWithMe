@@ -1,5 +1,5 @@
 # ChatWithMe
-This is a laboratory equipment management system + chat system developed in 2020 at university. Recently, while studying design patterns, I noticed that many GUIs use the observer pattern, which made me realize the design of my past project. I always wanted to start new projects, but never took the time to reflect on my previous ones. This is my first attempt at summarizing my past projects and applying the knowledge I have acquired so far.
+This is a laboratory equipment management system with a chat system developed in 2020 at the university. It can maintain device information and provide chat conveniently. This app is build with Java swing and threads tecniques, it use socket to create a connection between client and server. Indeed, every client is a server. Client means you are a sender who is send message to the other, which as a server.
 
 # Preview
 

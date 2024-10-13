@@ -4,8 +4,8 @@ import exception.*;
 public class GetConnection {
     public static Connection getConnection() throws GetConnectionException{
         String user="root";
-        String password="root";
-        String url = "jdbc:mysql://localhost:3306/yuzhoushixun?useUnicode=true&characterEncoding=utf8";
+        String password="english_improver";
+        String url = "jdbc:mysql://8.141.83.81:3306/chat?useUnicode=true&characterEncoding=utf8";
         Connection conn=null;
         try{
             Class.forName("com.mysql.jdbc.Driver");

@@ -10,8 +10,10 @@ public class Table  {
     public static ResultSet getResultSet(Connection conn,String sql){
         ResultSet rs=null;
         try{
-            Statement stmt = conn.createStatement();
+            // fix error: java.sql.SQLException: Operation not allowed for a result set of type ResultSet.TYPE_FORWARD_ONLY.
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             rs = stmt.executeQuery(sql);
+
         }catch(SQLException e){
             e.printStackTrace();
         }
@@ -69,7 +71,8 @@ public class Table  {
     }
     public static void deletRow(Connection conn,String sql,String value){
         try{
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+            PreparedStatement pstmt = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
             pstmt.setString(1,value);
             pstmt.executeUpdate();
         }catch(Exception e){
@@ -78,7 +81,7 @@ public class Table  {
     }
     public static void insert(Connection conn,String sql,Object rowdata[]){
         try {
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+            PreparedStatement pstmt = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             for(int i=1;i<=rowdata.length;i++){
                 pstmt.setObject(i,rowdata[i-1]);
             }
@@ -93,7 +96,8 @@ public class Table  {
      */
     public static void record(Connection conn,String uid,String function){
         try{
-            PreparedStatement p = conn.prepareStatement("insert into logs values(?,?,?)");
+            PreparedStatement p = conn.prepareStatement("insert into logs values(?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
             String date = df.format(new Date().getTime());// new Date()为获取当前系统时间，也可使用当前时间
             p.setString(1,uid);
@@ -110,7 +114,9 @@ public class Table  {
      */
     public static void updateChange(Connection conn,String sql,Object f){
         try{
-            PreparedStatement p = conn.prepareStatement(sql);
+            PreparedStatement p = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+
             p.setObject(1,f);
             p.executeUpdate();
         }catch(SQLException e){
@@ -119,7 +125,8 @@ public class Table  {
     }
     public static ResultSet select(Connection conn,String sql){
         try{
-            PreparedStatement p = conn.prepareStatement(sql);
+            PreparedStatement p = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
             return p.executeQuery();
         }catch(Exception e){
             e.printStackTrace();
@@ -131,7 +138,8 @@ public class Table  {
         String ip="";
         PreparedStatement p;
         try{
-            p = conn.prepareStatement(sql);
+            p = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
             p.setString(1,uid);
             ResultSet rs = p.executeQuery();
             rs.next();
@@ -145,7 +153,8 @@ public class Table  {
         String sql = "update user set ip=? where uid=?";
         PreparedStatement p;
         try {
-            p = conn.prepareStatement(sql);
+            p = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
             p.setString(1,ip);
             p.setString(2,uid);
             p.executeUpdate();

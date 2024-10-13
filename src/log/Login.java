@@ -9,6 +9,9 @@ import table.Table;
 import java.io.*;
 import java.sql.*;
 import java.net.*;
+import java.util.*;
+import java.util.List;
+
 public class Login extends JFrame implements ActionListener,Runnable{
     private Connection conn=null;//
     private String users[] = {"用户名","密码","姓名","性别","生日","邮件","级别"};
@@ -89,7 +92,7 @@ public class Login extends JFrame implements ActionListener,Runnable{
         c.setLayout(new BoxLayout(c,BoxLayout.Y_AXIS));
         setBackground(new Color(67,82,58));
         //设置位置、可见性、窗口大小以及关闭方式
-        this.setSize(150,360);
+        this.setSize(300,360);
         this.setLocation(new Point(400,180));
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -103,12 +106,83 @@ public class Login extends JFrame implements ActionListener,Runnable{
     //获取本机Ip
     public void getIP(){
         try{
+            // get real ip
+            InetAddress localHost = null;
+            try {
+                localHost = InetAddress.getLocalHost();
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
+            String hostAddress = localHost.getHostAddress();
+//            System.out.println("hostAddress = " + hostAddress);
+            List<InetAddress> validIPs = getValidIPv4Addresses();
+            System.out.println("有效的IPv4地址:");
+            for (InetAddress ip : validIPs) {
+//                System.out.println(ip.getHostAddress());
+            }
+
+            InetAddress bestIP = selectBestIP(validIPs);
             InetAddress addr =InetAddress.getLocalHost();
-            localIp = addr.getHostAddress();
+            localIp = bestIP.getHostAddress();
         }catch(Exception e){
 
         }
 
+    }
+
+    public static java.util.List<InetAddress> getValidIPv4Addresses() {
+        java.util.List<InetAddress> validIPs = new ArrayList<>();
+        try {
+            Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+            for (NetworkInterface netint : Collections.list(nets)) {
+                if (netint.isUp() && !netint.isLoopback()) {
+                    for (InetAddress inetAddress : Collections.list(netint.getInetAddresses())) {
+                        if (inetAddress instanceof Inet4Address && isValidIPv4(inetAddress)) {
+                            validIPs.add(inetAddress);
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            System.out.println("获取网络接口时出错: " + e.getMessage());
+        }
+        return validIPs;
+    }
+
+    private static boolean isValidIPv4(InetAddress inetAddress) {
+        if (inetAddress.isLoopbackAddress() || inetAddress.isLinkLocalAddress()) {
+            return false;
+        }
+        String ip = inetAddress.getHostAddress();
+        String[] octets = ip.split("\\.");
+        if (octets.length != 4) {
+            return false;
+        }
+        for (String octet : octets) {
+            int value = Integer.parseInt(octet);
+            if (value < 0 || value > 255) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static InetAddress selectBestIP(List<InetAddress> validIPs) {
+        // 优先选择非私有IP
+        Optional<InetAddress> publicIP = validIPs.stream()
+                .filter(ip -> !ip.isSiteLocalAddress())
+                .findFirst();
+
+        if (publicIP.isPresent()) {
+            return publicIP.get();
+        }
+
+        // 如果没有公网IP，选择私有IP中的第一个
+        Optional<InetAddress> privateIP = validIPs.stream()
+                .filter(InetAddress::isSiteLocalAddress)
+                .findFirst();
+
+        return privateIP.orElse(null);
     }
     //run
     public void run(){
@@ -117,7 +191,7 @@ public class Login extends JFrame implements ActionListener,Runnable{
     //
     public void getPort(){
         switch(uid){
-            case "1":uport=port[0];
+            case "321":uport=port[0];
                 break;
             case "111":uport=port[1];
                 break;
@@ -156,8 +230,10 @@ public class Login extends JFrame implements ActionListener,Runnable{
                     throw new LoginException();
                 } else {
                     String sql = "select * from user";
-                    PreparedStatement pstmt = conn.prepareStatement(sql);
+                    // fix error: java.sql.SQLException: Operation not allowed for a result set of type ResultSet.TYPE_FORWARD_ONLY.
+                    PreparedStatement pstmt = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                     ResultSet rs = pstmt.executeQuery();
+
                     rs.last();
                     int r = rs.getRow();
                     int c = users.length;

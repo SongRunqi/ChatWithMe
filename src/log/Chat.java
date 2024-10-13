@@ -36,7 +36,7 @@ public class Chat extends JPanel implements ActionListener,MouseListener,Runnabl
     private DataInputStream cread=null;//作为服务器请求连接的客户端的输入输出流
     private DataOutputStream cwrite=null;
     private DataInputStream sread=null;
-
+    private String currentFriendUid;
     private DataOutputStream swrite=null;
     private int uport;
     private int fport;
@@ -103,7 +103,8 @@ public class Chat extends JPanel implements ActionListener,MouseListener,Runnabl
         String sql="select uid,name,sex,birthday from user where uid in (select frienduid from friend where uid=?)";
         try{
             //创建sql语句并执行
-            pstmt = conn.prepareStatement(sql);
+            pstmt = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
             pstmt.setString(1,uid);
             friendList = pstmt.executeQuery();
             //获取朋友个数
@@ -214,12 +215,15 @@ public class Chat extends JPanel implements ActionListener,MouseListener,Runnabl
     public void run(){
 
         try{
-            server = new ServerSocket(7777);
+            getPort();
+            server = new ServerSocket(uport + 1);
+            System.out.println("服务线程已启动，服务端口："+(uport + 1));
+            System.out.println("服务线程已启动");
+            rec_Thread();//运行接受服务线程
+
         }catch(Exception ee){
             ee.printStackTrace();
         }
-        System.out.println("服务线程已启动");
-        rec_Thread();//运行接受服务线程
 
 
 
@@ -270,6 +274,7 @@ public class Chat extends JPanel implements ActionListener,MouseListener,Runnabl
                 m = u[1];
             }
             if(i==1){
+
                 m = sread.readUTF();
                 System.out.println("showHeMessage"+m);
                 String u[] = m.split("@",2);
@@ -288,9 +293,8 @@ public class Chat extends JPanel implements ActionListener,MouseListener,Runnabl
             System.out.println(chartNum);
             chatArea[chartNum].setText(chatArea[chartNum].getText()+m);
             System.out.println("消息展示完成");
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("error");
+        }catch(IOException e){
+
         }
     }
     /*
@@ -318,19 +322,22 @@ public class Chat extends JPanel implements ActionListener,MouseListener,Runnabl
                 IP  = Table.getIp(conn,friendUid.get(i));//获取朋友的IP
                 chartNum = i;
                 try{
+
                     getFport(friendUid.get(i));
                     InetAddress inet=InetAddress.getByName("localhost");
                     String ip = inet.getHostAddress();
                     if(fclient==null){
-                        client = new Socket(IP,7777);//本机作为客户端
-                        System.out.println("本机作为客户端");
+                        getPort();
+                        client = new Socket(IP,fport + 1);//本机作为客户端
+                        System.out.println("本机作为客户端,连接服务器" + IP + ":" + (fport + 1));
                         sread = new DataInputStream(client.getInputStream());
                         swrite = new DataOutputStream(client.getOutputStream());
                         this.i = 1;//作为客户端
                         rev_Thread();//启动接收消息线程
                     }
                 }catch(Exception e1){
-                    e1.printStackTrace();
+
+//                    e1.printStackTrace();
                     JOptionPane.showMessageDialog(null,"好友离线中。。。");
                 }
                 //刷新content
@@ -421,7 +428,7 @@ public class Chat extends JPanel implements ActionListener,MouseListener,Runnabl
                 break;
             case "123":fport = port[3];
                 break;
-            case "1342":fport = port[4];
+            case "321":fport = port[4];
                 break;
             case "125711713":fport = port[5];
                 break;
@@ -442,12 +449,13 @@ public class Chat extends JPanel implements ActionListener,MouseListener,Runnabl
                         break;
             case "123":uport = port[3];
                         break;
-            case "1342":uport = port[4];
+            case "321":uport = port[4];
                         break;
             case "125711713":uport = port[5];
                         break;
-
         }
+        System.out.println(uid);
+        System.out.println("本机："+ip+"端口："+uport);
     }
 
     /*

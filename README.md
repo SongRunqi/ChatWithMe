@@ -1,10 +1,18 @@
 # ChatWithMe
-这是2020年在大学做的一个实验室设备管理系统+聊天系统。前不久在看设计模式的时候，注意到了很多的GUI都采用了观察者模式，然后才注意到自己曾经的项目。我总是想做新的项目，却从来没有总结过自己曾经做过的项目。这是第一次尝试将自己做过的项目总结一下，顺便运用一下自己目前学到的知识。
+This is a laboratory equipment management system + chat system developed in 2020 at university. Recently, while studying design patterns, I noticed that many GUIs use the observer pattern, which made me realize the design of my past project. I always wanted to start new projects, but never took the time to reflect on my previous ones. This is my first attempt at summarizing my past projects and applying the knowledge I have acquired so far.
 
-
-# 目前，成功找回了曾经的数据库，可以让程序恢复到正常运行的状态了
+# Preview
 
 <img width="1342" alt="image" src="https://github.com/user-attachments/assets/b61c2c69-13b4-4530-ab4c-32d06b8af25f">
+
+# install
+1. clone this project
+2. execute the maven package command
+3. run the generated jar file.
+
+# useage
+1. Maintain your laboratory equipments
+2. Chat between managers.
 
 
 

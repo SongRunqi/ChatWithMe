@@ -1,10 +1,18 @@
 package top.yitianyuye.refine;
 
-/**
- * @author Logan
- * @since 3/29/25 10:58
- **/
 public enum JOINNER {
-    ME,
-    YOU
+    ME("Me"),
+    YOU("You"),
+    SYSTEM("System");
+
+    private final String displayName;
+
+    JOINNER(String displayName) {
+        this.displayName = displayName;
+    }
+
+    @Override
+    public String toString() {
+        return displayName;
+    }
 }

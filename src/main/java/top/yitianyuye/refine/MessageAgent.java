@@ -8,134 +8,134 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-/**
- * @author Logan
- * @since 3/27/25 22:18
- * The role for sending and receiving data regardless of client or server
- **/
 public class MessageAgent implements Runnable, Closeable {
     private final User user;
     private final InputStream input;
     private final OutputStream output;
     private final ChatClient chatClient;
-    private final int commandOcupiedLength = 4;
-    private final int messageBodyLengthDescribe = 32;
-    private final int oneTimeReadBytes = 1024;
+    private final int COMMAND_LENGTH = 4;
+    private final int MESSAGE_LENGTH_BYTES = 4; // Changed from 32 to 4 for int
+    private final int BUFFER_SIZE = 1024;
     private final Thread receiveThread;
-    private boolean starting = true;
+    private volatile boolean running = true;
     private ChatHistory chatHistory;
 
-
-    public MessageAgent(InputStream in, OutputStream out, ChatClient chatClient,  User user) {
-        input = in;
-        output = out;
+    public MessageAgent(InputStream in, OutputStream out, ChatClient chatClient, User user) {
+        this.input = in;
+        this.output = out;
         this.chatClient = chatClient;
         this.user = user;
-        receiveThread = new Thread(this);
-        receiveThread.start();
-    }
-
-
-    /**
-     * 重新启动接收消息线程
-     * @return 线程启动成功true；失败false
-     */
-    public boolean starting() {
-        if (!starting) {
-            starting = true;
-            receiveThread.start();
-            return true;
-        }
-        return false;
+        this.chatHistory = new ChatHistory(); // Initialize chatHistory
+        this.receiveThread = new Thread(this);
+        this.receiveThread.start();
     }
 
     @Override
     public void close() throws IOException {
+        running = false;
+        if (receiveThread != null) {
+            receiveThread.interrupt();
+        }
         input.close();
         output.close();
-        if (receiveThread != null) {
-            starting = false;
-        }
     }
 
-    public void sendText(String text) throws IOException{
-        output.write(MessageType.TEXT.getBytes());
-        output.write(text.getBytes());
+    public void sendText(String text) throws IOException {
+        byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
+        ByteBuffer buffer = ByteBuffer.allocate(COMMAND_LENGTH + MESSAGE_LENGTH_BYTES + textBytes.length);
+
+        // Write command
+        buffer.put(MessageType.TEXT.getBytes());
+
+        // Write message length
+        buffer.putInt(textBytes.length);
+
+        // Write message
+        buffer.put(textBytes);
+
+        output.write(buffer.array());
         output.flush();
     }
 
-    /**
-     * 取message的前四个比特作为消息类型
-     * @param message 4 bytes
-     * @return 消息类型
-     */
-    private MessageType judgeMessageType(byte[] message) {
-        byte[] command = Arrays.copyOfRange(message, 0, 4);
+    private MessageType judgeMessageType(byte[] command) {
         if (Arrays.equals(command, MessageType.TEXT.getBytes())) {
             return MessageType.TEXT;
         }
-
         if (Arrays.equals(command, MessageType.IMAGE.getBytes())) {
             return MessageType.IMAGE;
         }
-
         return null;
     }
 
-    /**
-     * 获取消息体的长度
-     * @param message
-     * @return
-     */
-    private Long getMessageBodyLength(byte[] message) {
-        byte[] lengthBytes = Arrays.copyOfRange(message, 0, messageBodyLengthDescribe);
-        //
-        ByteBuffer bf = ByteBuffer.wrap(lengthBytes);
-        return bf.getLong();
+    private int getMessageBodyLength(byte[] lengthBytes) {
+        return ByteBuffer.wrap(lengthBytes).getInt();
     }
 
-    /**
-     * receive message method
-     */
     @Override
     public void run() {
-        while(starting) {
-            byte[] command = new byte[commandOcupiedLength];
-            try {
-                // judge command to specify message type
-                int readCommandLength = input.read(command);
-                if (readCommandLength != commandOcupiedLength) {
-                    continue;
+        try {
+            while (running) {
+                // Read command
+                byte[] command = new byte[COMMAND_LENGTH];
+                int bytesRead = readFully(input, command);
+                if (bytesRead < COMMAND_LENGTH) {
+                    break; // Connection closed
                 }
+
                 MessageType messageType = judgeMessageType(command);
                 if (messageType == null) {
                     continue;
                 }
-                // recognize message body length
-                byte[] messageBodyLength = new byte[messageBodyLengthDescribe];
-                long messagLength = getMessageBodyLength(messageBodyLength);
 
-                // read data
-                ByteBuffer bf = ByteBuffer.allocate(oneTimeReadBytes);
-                long start = 0;
-                while(start < messagLength) {
-                    byte[] bytes = input.readNBytes(oneTimeReadBytes);
-                    bf.put(bytes);
-                    switch(messageType) {
-                        case TEXT -> {
-                            String messageFromBytes = new String(bytes, StandardCharsets.UTF_8);
-                            chatHistory.put(user, JOINNER.YOU, messageFromBytes);
-                            chatClient.showTextMessage(user, JOINNER.YOU, messageFromBytes, start == 0, start < oneTimeReadBytes);
-                        }
-                        case IMAGE -> System.out.println("not supported");
-                    }
-                    start+=oneTimeReadBytes;
+                // Read message length
+                byte[] lengthBytes = new byte[MESSAGE_LENGTH_BYTES];
+                bytesRead = readFully(input, lengthBytes);
+                if (bytesRead < MESSAGE_LENGTH_BYTES) {
+                    break;
                 }
 
+                int messageLength = getMessageBodyLength(lengthBytes);
+                if (messageLength <= 0 || messageLength > 1024 * 1024) { // Max 1MB
+                    continue;
+                }
 
-            } catch (Exception e) {
+                // Read message body
+                byte[] messageBody = new byte[messageLength];
+                bytesRead = readFully(input, messageBody);
+                if (bytesRead < messageLength) {
+                    break;
+                }
+
+                // Process message
+                switch (messageType) {
+                    case TEXT -> {
+                        String message = new String(messageBody, StandardCharsets.UTF_8);
+                        chatHistory.put(user, JOINNER.YOU, message);
+                        chatClient.showTextMessage(user, JOINNER.YOU, message, true, true);
+                    }
+                    case IMAGE -> System.out.println("Image messages not yet supported");
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Connection error: " + e.getMessage());
+        } finally {
+            try {
+                close();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private int readFully(InputStream in, byte[] buffer) throws IOException {
+        int totalRead = 0;
+        while (totalRead < buffer.length) {
+            int read = in.read(buffer, totalRead, buffer.length - totalRead);
+            if (read == -1) {
+                return totalRead;
+            }
+            totalRead += read;
+        }
+        return totalRead;
     }
 }
